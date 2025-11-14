@@ -1,622 +1,107 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Funny Selfie — Make 'Em Laugh</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Funny Camera</title>
 <style>
-  :root{
-    --bg:#0f1724;
-    --card:#0b1220;
-    --accent:#ff6b6b;
-    --muted:#94a3b8;
-    --glass: rgba(255,255,255,0.03);
-  }
-  html,body{height:100%;margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,"Helvetica Neue",Arial;color:#e6eef8;background:linear-gradient(180deg,#071027 0%, #0f1724 100%);}
-  .wrap{max-width:980px;margin:28px auto;padding:20px;border-radius:12px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));box-shadow:0 8px 30px rgba(2,6,23,0.6);}
-  header{display:flex;gap:14px;align-items:center}
-  h1{margin:0;font-size:20px}
-  p.lead{margin:6px 0 18px;color:var(--muted);font-size:14px}
-  .stage{display:flex;gap:18px;flex-wrap:wrap;align-items:flex-start}
-  .camera, .controls {background:var(--card);padding:14px;border-radius:10px;flex:1;min-width:280px;box-shadow: 0 6px 18px rgba(2,6,23,0.6);}
-  video, canvas{width:100%;height:auto;border-radius:8px;background: #111;}
-  .buttons{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
-  button{background:linear-gradient(180deg,#142338,#0e1b2a);color:#e6f0ff;padding:8px 12px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);cursor:pointer;font-weight:600}
-  button.ghost{background:transparent;border:1px dashed rgba(255,255,255,0.05);color:var(--muted);font-weight:500}
-  .small{padding:6px 8px;font-size:13px}
-  .filters{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
-  .filter-chip{padding:8px 10px;border-radius:999px;background:var(--glass);border:1px solid rgba(255,255,255,0.02);color:var(--muted);cursor:pointer;font-size:13px}
-  .filter-chip.active{background:linear-gradient(90deg,var(--accent),#ffb86b);color:#0b1220;font-weight:700}
-  footer{margin-top:12px;color:var(--muted);font-size:13px;text-align:center}
-  .note{font-size:12px;color:var(--muted);margin-top:8px}
-  .download{display:inline-flex;gap:8px;align-items:center}
-  .result-preview{max-width:320px;border-radius:10px;overflow:hidden;box-shadow:0 10px 30px rgba(2,6,23,0.6);}
-  .controls .row{display:flex;gap:8px;align-items:center;justify-content:space-between;margin-top:8px}
-  .randomize{background:linear-gradient(90deg,#5efc82,#6bf7ff);color:#04202a}
-  .topbar{display:flex;gap:12px;align-items:center}
-  .logo{width:42px;height:42px;border-radius:10px;background:linear-gradient(90deg,#ff6b6b,#ffa87d);display:flex;align-items:center;justify-content:center;font-weight:800;color:#081018}
-  @media (max-width:720px){ .stage{flex-direction:column} .controls{order:2} }
+    body {
+        background: #111;
+        color: #fff;
+        font-family: Arial;
+        text-align: center;
+        padding: 20px;
+    }
+    video, canvas {
+        width: 90%;
+        max-width: 450px;
+        border-radius: 12px;
+        margin-top: 15px;
+        background: #000;
+    }
+    button {
+        margin-top: 15px;
+        padding: 10px 20px;
+        font-size: 18px;
+        border-radius: 10px;
+        border: none;
+        cursor: pointer;
+        background: #ff3b3b;
+        color: white;
+        font-weight: bold;
+    }
 </style>
 </head>
 <body>
-  <div class="wrap">
-    <header>
-      <div class="logo">😜</div>
-      <div>
-        <h1>Funny Selfie Lab</h1>
-        <p class="lead">Snap a selfie and let the app do the silly stuff. Press <strong>Make me laugh</strong> for a random goofy transformation. ✔️</p>
-      </div>
-    </header>
 
-    <div class="stage" style="margin-top:16px;">
-      <div class="camera">
-        <div class="topbar">
-          <div style="font-weight:700">Camera</div>
-          <div style="margin-left:auto;color:var(--muted);font-size:13px">Privacy: stays in your browser</div>
-        </div>
-        <video id="video" autoplay playsinline></video>
-        <div class="buttons">
-          <button id="startBtn">Start Camera</button>
-          <button id="snapBtn" class="ghost small">Take Photo</button>
-          <button id="flipBtn" class="ghost small">Flip Camera</button>
-        </div>
-        <div class="note">Tip: allow camera access. If it asks for microphone, you can deny it — we don't use audio.</div>
-      </div>
+<h2>😂 Funny Selfie Camera</h2>
+<p>Camera turns on automatically. Take a pic & get a funny version!</p>
 
-      <div class="controls">
-        <div style="display:flex;gap:12px;align-items:center;">
-          <div style="font-weight:700">Result</div>
-          <div style="margin-left:auto;display:flex;gap:8px">
-            <button id="randomBtn" class="randomize small">Make me laugh 🤣</button>
-            <button id="downloadBtn" class="small">Download</button>
-          </div>
-        </div>
-
-        <canvas id="canvas" width="640" height="480" style="margin-top:10px;"></canvas>
-
-        <div class="filters">
-          <div class="filter-chip" data-filter="none">None</div>
-          <div class="filter-chip" data-filter="bulge">Bulge</div>
-          <div class="filter-chip" data-filter="swirl">Swirl</div>
-          <div class="filter-chip" data-filter="bigeyes">Big Eyes</div>
-          <div class="filter-chip" data-filter="clown">Clownify</div>
-          <div class="filter-chip" data-filter="stickers">Stickers</div>
-        </div>
-
-        <div class="row">
-          <div style="color:var(--muted);font-size:13px">Intensity</div>
-          <input id="intensity" type="range" min="0" max="1" step="0.01" value="0.7" style="width:50%">
-        </div>
-
-        <div style="display:flex;gap:6px;margin-top:10px">
-          <button id="applyBtn">Apply Selected Filter</button>
-          <button id="resetBtn" class="ghost">Reset</button>
-        </div>
-
-      </div>
-    </div>
-
-    <footer>
-      Built with silly algorithms — enjoy! 🔨🤖🔧
-    </footer>
-  </div>
+<video id="video" autoplay playsinline></video>
+<button id="snapBtn">Take Funny Photo</button>
+<canvas id="canvas"></canvas>
 
 <script>
-/*
-  Funny Selfie App
-  - Camera capture
-  - Canvas-based filters: bulge, swirl, big-eyes (FaceDetector if present), clownify, stickers
-  - Randomizer
-  - Download
-*/
+const video = document.getElementById("video");
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
 
-const video = document.getElementById('video');
-const canvas = document.getElementById('canvas');
-const ctx = canvas.getContext('2d', { willReadFrequently: true });
-
-let stream = null;
-let useFront = true;
-let currentImage = null; // ImageData of original capture
-let faceDetectorAvailable = ('FaceDetector' in window);
-const chips = document.querySelectorAll('.filter-chip');
-let selectedFilter = 'none';
-
-document.querySelectorAll('.filter-chip').forEach(chip=>{
-  chip.addEventListener('click', ()=> {
-    chips.forEach(c=>c.classList.remove('active'));
-    chip.classList.add('active');
-    selectedFilter = chip.dataset.filter;
-  });
-});
-// default select none
-document.querySelector('.filter-chip[data-filter="none"]').classList.add('active');
-
+// TURN CAMERA ON AUTOMATICALLY ✔️
 async function startCamera() {
-  if (stream) {
-    stream.getTracks().forEach(t=>t.stop());
-    stream = null;
-  }
-  const constraints = {
-    video: {
-      width: { ideal: 1280 },
-      height: { ideal: 720 },
-      facingMode: useFront ? 'user' : 'environment'
-    },
-    audio: false
-  };
-  try {
-    stream = await navigator.mediaDevices.getUserMedia(constraints);
-    video.srcObject = stream;
-    await video.play();
-  } catch (err) {
-    alert('Camera error: ' + (err.message || err));
-  }
-}
-
-document.getElementById('startBtn').addEventListener('click', startCamera);
-
-document.getElementById('flipBtn').addEventListener('click', async ()=>{
-  useFront = !useFront;
-  await startCamera();
-});
-
-document.getElementById('snapBtn').addEventListener('click', ()=> {
-  takePhoto();
-});
-
-function sizeCanvasToVideo() {
-  // maintain aspect ratio
-  const vw = video.videoWidth || 640;
-  const vh = video.videoHeight || 480;
-  canvas.width = vw;
-  canvas.height = vh;
-}
-
-function takePhoto() {
-  if (!video.srcObject) {
-    alert('Start the camera first!');
-    return;
-  }
-  sizeCanvasToVideo();
-  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-  currentImage = ctx.getImageData(0, 0, canvas.width, canvas.height);
-}
-
-function resetToOriginal() {
-  if (!currentImage) return;
-  ctx.putImageData(currentImage, 0, 0);
-}
-
-document.getElementById('resetBtn').addEventListener('click', ()=> {
-  resetToOriginal();
-});
-
-document.getElementById('downloadBtn').addEventListener('click', ()=> {
-  const url = canvas.toDataURL('image/png');
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'funny-selfie.png';
-  a.click();
-});
-
-// *****************************
-// Filters
-// *****************************
-
-function copyImageData(src) {
-  const d = new ImageData(new Uint8ClampedArray(src.data), src.width, src.height);
-  return d;
-}
-
-function applyBulge(src, intensity=0.6, radiusFactor=0.5) {
-  const dst = copyImageData(src);
-  const w = src.width, h = src.height;
-  const cx = w/2, cy = h/2;
-  const maxr = Math.min(w,h) * radiusFactor;
-  const data = src.data, out = dst.data;
-
-  for (let y=0;y<h;y++){
-    for (let x=0;x<w;x++){
-      const dx = x - cx, dy = y - cy;
-      const r = Math.sqrt(dx*dx + dy*dy);
-      let theta = Math.atan2(dy, dx);
-      let nr = r;
-      if (r < maxr) {
-        // bulge formula
-        const t = (1 - (r / maxr));
-        nr = r + intensity* (maxr * t * t);
-      }
-      const sx = Math.round(cx + nr * Math.cos(theta));
-      const sy = Math.round(cy + nr * Math.sin(theta));
-      const dstIdx = (y*w + x)*4;
-      if (sx>=0 && sx<w && sy>=0 && sy<h) {
-        const srcIdx = (sy*w + sx)*4;
-        out[dstIdx]=data[srcIdx];
-        out[dstIdx+1]=data[srcIdx+1];
-        out[dstIdx+2]=data[srcIdx+2];
-        out[dstIdx+3]=data[srcIdx+3];
-      } else {
-        out[dstIdx]=data[dstIdx];
-        out[dstIdx+1]=data[dstIdx+1];
-        out[dstIdx+2]=data[dstIdx+2];
-        out[dstIdx+3]=data[dstIdx+3];
-      }
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+            video: { facingMode: "user" }
+        });
+        video.srcObject = stream;
+    } catch (err) {
+        alert("Camera failed: " + err);
     }
-  }
-  return dst;
 }
+startCamera();
 
-function applySwirl(src, intensity=2.5, radiusFactor=0.6) {
-  const dst = copyImageData(src);
-  const w = src.width, h = src.height;
-  const cx = w/2, cy = h/2;
-  const maxr = Math.min(w,h) * radiusFactor;
-  const data = src.data, out = dst.data;
+// TAKE PHOTO + APPLY FUNNY EFFECT ✔️
+document.getElementById("snapBtn").addEventListener("click", () => {
+    const w = video.videoWidth;
+    const h = video.videoHeight;
 
-  for (let y=0;y<h;y++){
-    for (let x=0;x<w;x++){
-      const dx = x - cx, dy = y - cy;
-      const r = Math.sqrt(dx*dx + dy*dy);
-      let theta = Math.atan2(dy, dx);
-      if (r < maxr) {
-        const effect = (1 - r / maxr);
-        theta += intensity * effect * effect;
-      }
-      const sx = Math.round(cx + r * Math.cos(theta));
-      const sy = Math.round(cy + r * Math.sin(theta));
-      const dstIdx = (y*w + x)*4;
-      if (sx>=0 && sx<w && sy>=0 && sy<h) {
-        const srcIdx = (sy*w + sx)*4;
-        out[dstIdx]=data[srcIdx];
-        out[dstIdx+1]=data[srcIdx+1];
-        out[dstIdx+2]=data[srcIdx+2];
-        out[dstIdx+3]=data[srcIdx+3];
-      } else {
-        out[dstIdx]=data[dstIdx];
-        out[dstIdx+1]=data[dstIdx+1];
-        out[dstIdx+2]=data[dstIdx+2];
-        out[dstIdx+3]=data[dstIdx+3];
-      }
-    }
-  }
-  return dst;
-}
+    canvas.width = w;
+    canvas.height = h;
 
-function increaseSaturationAndContrast(src, satFactor=1.5, contrast=1.1) {
-  const dst = copyImageData(src);
-  const w = src.width, h = src.height;
-  const out = dst.data, d = src.data;
-  for (let i=0;i<d.length;i+=4){
-    // convert RGB to HSL-ish quick approx: use linear blend -> convert using chroma
-    let r=d[i]/255, g=d[i+1]/255, b=d[i+2]/255;
-    // Lum
-    let max = Math.max(r,g,b), min = Math.min(r,g,b);
-    let l = (max+min)/2;
-    // Adjust saturation (approx) by lerping toward the max color
-    r = r + (r - l) * satFactor * 0.6;
-    g = g + (g - l) * satFactor * 0.6;
-    b = b + (b - l) * satFactor * 0.6;
-    // contrast around 0.5
-    r = ((r - 0.5) * contrast) + 0.5;
-    g = ((g - 0.5) * contrast) + 0.5;
-    b = ((b - 0.5) * contrast) + 0.5;
-    out[i] = Math.max(0, Math.min(255, Math.round(r*255)));
-    out[i+1] = Math.max(0, Math.min(255, Math.round(g*255)));
-    out[i+2] = Math.max(0, Math.min(255, Math.round(b*255)));
-    out[i+3] = d[i+3];
-  }
-  return dst;
-}
+    ctx.drawImage(video, 0, 0, w, h);
 
-function drawClownFeatures(dstCtx, w, h) {
-  // red nose
-  const nx = w * 0.5;
-  const ny = h * 0.46;
-  const noseR = Math.max(14, Math.min(w,h) * 0.06);
-  dstCtx.save();
-  dstCtx.beginPath();
-  dstCtx.fillStyle = '#ff2d55';
-  dstCtx.arc(nx, ny, noseR, 0, Math.PI*2);
-  dstCtx.fill();
-  // rosy cheeks
-  dstCtx.globalAlpha = 0.45;
-  dstCtx.fillStyle = '#ff8da6';
-  dstCtx.beginPath();
-  dstCtx.ellipse(w*0.28, h*0.5, noseR*1.1, noseR*0.75, 0, 0, Math.PI*2);
-  dstCtx.fill();
-  dstCtx.beginPath();
-  dstCtx.ellipse(w*0.72, h*0.5, noseR*1.1, noseR*0.75, 0, 0, Math.PI*2);
-  dstCtx.fill();
-  dstCtx.globalAlpha = 1;
-  // big smile
-  dstCtx.strokeStyle = '#ff6b6b';
-  dstCtx.lineWidth = Math.max(3, Math.floor(w*0.01));
-  dstCtx.beginPath();
-  dstCtx.arc(w*0.5, h*0.6, w*0.22, 0.25*Math.PI, 0.75*Math.PI);
-  dstCtx.stroke();
-  dstCtx.restore();
-}
+    // Get pixels
+    let imgData = ctx.getImageData(0, 0, w, h);
+    let d = imgData.data;
 
-function overlayStickers(dstCtx, w, h) {
-  // funny glasses
-  dstCtx.save();
-  dstCtx.strokeStyle = '#111';
-  dstCtx.fillStyle = '#fff';
-  dstCtx.lineWidth = Math.max(3, Math.floor(w*0.01));
-  const gx = w*0.5, gy = h*0.36;
-  const gw = w*0.28, gh = h*0.14;
-  // left
-  dstCtx.beginPath();
-  dstCtx.ellipse(gx - gw*0.6, gy, gw*0.5, gh*0.7, 0, 0, Math.PI*2);
-  dstCtx.fill();
-  dstCtx.stroke();
-  // right
-  dstCtx.beginPath();
-  dstCtx.ellipse(gx + gw*0.6, gy, gw*0.5, gh*0.7, 0, 0, Math.PI*2);
-  dstCtx.fill();
-  dstCtx.stroke();
-  // bridge
-  dstCtx.beginPath();
-  dstCtx.moveTo(gx - gw*0.1, gy);
-  dstCtx.lineTo(gx + gw*0.1, gy);
-  dstCtx.stroke();
+    // FUNNY EFFECT: Big-mouth + Warp Face 😂
+    for (let y = 0; y < h; y++) {
+        for (let x = 0; x < w; x++) {
 
-  // moustache
-  dstCtx.fillStyle = '#221';
-  dstCtx.beginPath();
-  const mx = w*0.5, my = h*0.52;
-  dstCtx.moveTo(mx - 30, my);
-  dstCtx.quadraticCurveTo(mx - 70, my - 20, mx - 120, my);
-  dstCtx.quadraticCurveTo(mx - 70, my + 20, mx - 30, my);
-  dstCtx.fill();
-  dstCtx.beginPath();
-  dstCtx.moveTo(mx + 30, my);
-  dstCtx.quadraticCurveTo(mx + 70, my - 20, mx + 120, my);
-  dstCtx.quadraticCurveTo(mx + 70, my + 20, mx + 30, my);
-  dstCtx.fill();
+            let dx = x - w/2;
+            let dy = y - h/2;
+            let dist = Math.sqrt(dx*dx + dy*dy);
 
-  dstCtx.restore();
-}
+            // Warp strength
+            if (dist < h * 0.35) {
+                let warp = 1 + (0.4 * (1 - dist / (h * 0.35)));
+                let sx = Math.floor(w/2 + dx * warp);
+                let sy = Math.floor(h/2 + dy * warp);
 
-// Very simple fallback "big eyes" when FaceDetector isn't available:
-// enlarge two ovals near upper-center.
-function bigEyesFallback(src, intensity=1.25) {
-  const dst = copyImageData(src);
-  const w = src.width, h = src.height;
-  const cx = w/2, cy = h*0.36;
-  const eyeW = Math.floor(w*0.11), eyeH = Math.floor(h*0.09);
-  // left eye center and right eye center
-  const left = {x: cx - w*0.12, y: cy};
-  const right = {x: cx + w*0.12, y: cy};
+                if (sx >= 0 && sx < w && sy >= 0 && sy < h) {
+                    let srcIndex = (sy * w + sx) * 4;
+                    let dstIndex = (y * w + x) * 4;
 
-  // helper to scale area
-  function warpEye(center) {
-    const ex = Math.max(1, Math.floor(center.x - eyeW*1.2));
-    const ey = Math.max(1, Math.floor(center.y - eyeH*1.2));
-    const ew = Math.min(w - ex -1, Math.floor(eyeW*2.4));
-    const eh = Math.min(h - ey -1, Math.floor(eyeH*2.4));
-    // copy region to temp canvas
-    const tmp = document.createElement('canvas');
-    tmp.width = ew; tmp.height = eh;
-    const tctx = tmp.getContext('2d');
-    // draw region from original canvas
-    const img = new ImageData(new Uint8ClampedArray(src.data), src.width, src.height);
-    // draw using intermediate canvas
-    const te = document.createElement('canvas');
-    te.width = w; te.height = h;
-    te.getContext('2d').putImageData(src,0,0);
-    tctx.drawImage(te, ex, ey, ew, eh, 0, 0, ew, eh);
-
-    // draw scaled up into dst
-    const scale = intensity;
-    const dw = Math.round(ew * scale), dh = Math.round(eh * scale);
-    const dx = Math.max(0, Math.round(center.x - dw/2));
-    const dy = Math.max(0, Math.round(center.y - dh/2));
-    // put onto a temporary then blend into dst
-    const bigCanvas = document.createElement('canvas');
-    bigCanvas.width = dw; bigCanvas.height = dh;
-    const bctx = bigCanvas.getContext('2d');
-    bctx.drawImage(tmp, 0, 0, dw, dh);
-    // extract pixels
-    const bigData = bctx.getImageData(0,0,dw,dh).data;
-    for (let yy=0; yy<dh; yy++){
-      for (let xx=0; xx<dw; xx++){
-        const sx = xx, sy = yy;
-        const bx = dx + xx, by = dy + yy;
-        if (bx<0||bx>=w||by<0||by>=h) continue;
-        const dstIdx = (by*w + bx)*4;
-        const srcIdx = (sy*dw + sx)*4;
-        // alpha blend
-        const a = bigData[srcIdx+3]/255;
-        if (a>0.01){
-          // overwrite for simplicity
-          dst.data[dstIdx]=bigData[srcIdx];
-          dst.data[dstIdx+1]=bigData[srcIdx+1];
-          dst.data[dstIdx+2]=bigData[srcIdx+2];
-          dst.data[dstIdx+3]=bigData[srcIdx+3];
+                    d[dstIndex] = d[srcIndex];
+                    d[dstIndex+1] = d[srcIndex+1];
+                    d[dstIndex+2] = d[srcIndex+2];
+                }
+            }
         }
-      }
     }
-  }
-  warpEye(left);
-  warpEye(right);
-  return dst;
-}
 
-async function bigEyesUsingFaceDetector(src, intensity=1.4) {
-  // Uses FaceDetector API to find eye bounding boxes and enlarge them
-  const dst = copyImageData(src);
-  const w = src.width, h = src.height;
-  if (!faceDetectorAvailable) return bigEyesFallback(src, intensity);
-  try {
-    const detector = new FaceDetector({fastMode:true, maxDetectedFaces:1});
-    // draw to temp canvas
-    const temp = document.createElement('canvas');
-    temp.width = w; temp.height = h;
-    const tctx = temp.getContext('2d');
-    tctx.putImageData(src,0,0);
-    // detect faces
-    const faces = await detector.detect(temp);
-    if (!faces || faces.length===0) return bigEyesFallback(src, intensity);
-    const face = faces[0];
-    // face.landmarks may include "leftEye" and "rightEye" depending on implementation
-    // but face.boundingBox is guaranteed. We'll compute eye positions heuristically.
-    const box = face.boundingBox || { x: w*0.25, y: h*0.2, width: w*0.5, height: h*0.5 };
-    const leftEyeCenter = { x: box.x + box.width*0.28, y: box.y + box.height*0.38 };
-    const rightEyeCenter = { x: box.x + box.width*0.72, y: box.y + box.height*0.38 };
-    // enlarge patches around eyes similarly to fallback
-    function warpAt(center) {
-      const eyeW = Math.floor(box.width * 0.18);
-      const eyeH = Math.floor(box.height * 0.15);
-      const ex = Math.max(0, Math.round(center.x - eyeW));
-      const ey = Math.max(0, Math.round(center.y - eyeH));
-      const ew = Math.min(w - ex, eyeW*2);
-      const eh = Math.min(h - ey, eyeH*2);
-      const tmp = document.createElement('canvas'); tmp.width=ew; tmp.height=eh;
-      const t2 = tmp.getContext('2d');
-      const full = document.createElement('canvas'); full.width=w; full.height=h;
-      full.getContext('2d').putImageData(src,0,0);
-      t2.drawImage(full, ex, ey, ew, eh, 0, 0, ew, eh);
-      const dw = Math.round(ew * intensity), dh = Math.round(eh * intensity);
-      const dx = Math.round(center.x - dw/2), dy = Math.round(center.y - dh/2);
-      const big = document.createElement('canvas'); big.width = dw; big.height = dh;
-      const bctx = big.getContext('2d');
-      bctx.drawImage(tmp,0,0,dw,dh);
-      const bigData = bctx.getImageData(0,0,dw,dh).data;
-      for (let yy=0; yy<dh; yy++){
-        for (let xx=0; xx<dw; xx++){
-          const bx = dx + xx, by = dy + yy;
-          if (bx<0||bx>=w||by<0||by>=h) continue;
-          const dstIdx = (by*w + bx)*4;
-          const srcIdx = (yy*dw + xx)*4;
-          dst.data[dstIdx]=bigData[srcIdx];
-          dst.data[dstIdx+1]=bigData[srcIdx+1];
-          dst.data[dstIdx+2]=bigData[srcIdx+2];
-          dst.data[dstIdx+3]=bigData[srcIdx+3];
-        }
-      }
-    }
-    warpAt(leftEyeCenter);
-    warpAt(rightEyeCenter);
-    return dst;
-  } catch (e) {
-    // if detection fails, fallback
-    return bigEyesFallback(src, intensity);
-  }
-}
-
-// master apply function
-async function applyFilterToCanvas(filterName, intensity=0.7) {
-  if (!currentImage) {
-    alert('Take a photo first!');
-    return;
-  }
-  const src = currentImage;
-  let result = null;
-  const w = src.width, h = src.height;
-
-  if (filterName === 'none') {
-    result = copyImageData(src);
-  } else if (filterName === 'bulge') {
-    result = applyBulge(src, intensity*1.2, 0.45);
-  } else if (filterName === 'swirl') {
-    result = applySwirl(src, intensity*4.0, 0.55);
-  } else if (filterName === 'bigeyes') {
-    if (faceDetectorAvailable) {
-      result = await bigEyesUsingFaceDetector(src, 1 + intensity*0.9);
-    } else {
-      result = bigEyesFallback(src, 1 + intensity*0.9);
-    }
-  } else if (filterName === 'clown') {
-    // do color pop then draw clown features
-    const sat = increaseSaturationAndContrast(src, 1 + intensity*1.4, 1.0 + intensity*0.25);
-    // paint onto canvas + overlays
-    ctx.putImageData(sat, 0, 0);
-    drawClownFeatures(ctx, w, h);
-    return;
-  } else if (filterName === 'stickers') {
-    // small bulge + sticker overlay
-    result = applyBulge(src, intensity*0.6, 0.35);
-    // put and draw sticker
-    ctx.putImageData(result,0,0);
-    overlayStickers(ctx, w, h);
-    return;
-  } else {
-    // unknown fallback
-    result = copyImageData(src);
-  }
-
-  // put result image data to canvas
-  if (result) {
-    ctx.putImageData(result, 0, 0);
-  }
-}
-
-// Randomizer for silly combos
-function randomFilter() {
-  const options = ['bulge','swirl','bigeyes','clown','stickers'];
-  const pick = options[Math.floor(Math.random()*options.length)];
-  return pick;
-}
-
-document.getElementById('applyBtn').addEventListener('click', async ()=>{
-  const intensity = parseFloat(document.getElementById('intensity').value);
-  await applyFilterToCanvas(selectedFilter, intensity);
+    ctx.putImageData(imgData, 0, 0);
 });
-
-document.getElementById('randomBtn').addEventListener('click', async ()=>{
-  if (!currentImage) { alert('Take a photo first!'); return; }
-  const pick = randomFilter();
-  // select chip UI
-  chips.forEach(c=>c.classList.remove('active'));
-  const chip = document.querySelector(`.filter-chip[data-filter="${pick}"]`);
-  if (chip) chip.classList.add('active');
-  selectedFilter = pick;
-  // random intensity biased to silly values
-  const intensity = 0.4 + Math.random()*0.8;
-  document.getElementById('intensity').value = intensity.toFixed(2);
-  await applyFilterToCanvas(pick, intensity);
-  // tiny bounce animation to celebrate
-  canvas.style.transform = 'scale(0.985)';
-  setTimeout(()=>canvas.style.transform = 'scale(1)', 180);
-});
-
-// automatic start if permission
-(async ()=> {
-  // attempt to pre-start camera quietly
-  try {
-    // prefer to not prompt immediately; only start when user clicks Start Camera
-    // but some browsers allow no prompt if previously granted.
-    // We leave it to the user to click.
-  } catch(e) {
-    // ignore
-  }
-
-  if (!('mediaDevices' in navigator)) {
-    alert('Your browser does not support camera capture (navigator.mediaDevices). Try Chrome/Edge on mobile or desktop.');
-  }
-})();
-
-// bonus: if file is opened and camera not accessible, allow dragging an image (quick fallback)
-canvas.addEventListener('dragover', ev=>{ ev.preventDefault(); ev.dataTransfer.dropEffect='copy'; });
-canvas.addEventListener('drop', ev=>{
-  ev.preventDefault();
-  const f = ev.dataTransfer.files[0];
-  if (!f) return;
-  const reader = new FileReader();
-  reader.onload = function(e){
-    const img = new Image();
-    img.onload = function(){
-      canvas.width = img.width;
-      canvas.height = img.height;
-      ctx.drawImage(img,0,0);
-      currentImage = ctx.getImageData(0,0,canvas.width,canvas.height);
-    };
-    img.src = e.target.result;
-  };
-  reader.readAsDataURL(f);
-});
-
 </script>
+
 </body>
 </html>
